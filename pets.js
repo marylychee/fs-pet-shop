@@ -15,11 +15,56 @@ if (cmd === 'read') {
       throw err;
     }
     var pets = JSON.parse(data);
+    var index = process.argv[3];
 
-    console.log(pets);
+    if (index) {
+      if (index >= pets.length || index < 0) {
+        console.error(`Usage: ${node} ${file} ${cmd} INDEX`);
+      }
+      else {
+        console.log(pets[index]);
+      }
+    } else {
+      console.log(pets);
+    }
+  })
+}
+else if (cmd === 'create') {
+  fs.readFile(petsPath, 'utf8', function(readErr, data) {
+    if (readErr) {
+      throw readErr;
+    }
+
+    var pets = JSON.parse(data);
+    var age = process.argv[3];
+    var kind = process.argv[4];
+    var name = process.argv[5];
+
+
+
+    if (age && kind && name) {
+      var pet = {};
+      pet.age = parseInt(age);
+      pet.kind = kind;
+      pet.name = name;
+      pets.push(pet);
+    } else {
+      console.error(`Usage: ${node} ${file} ${cmd} AGE KIND NAME`);
+      process.exit(1);
+    }
+
+    var petsJSON = JSON.stringify(pets);
+
+    fs.writeFile(petsPath, petsJSON, function(writeErr) {
+      if (writeErr) {
+        throw writeErr;
+      }
+
+      console.log(pet);
+    })
   })
 }
 else {
-  console.error(`Usage: ${node} ${file} read`);
+  console.error(`Usage: ${node} ${file} [read | create]`);
   process.exit(1);
 }
