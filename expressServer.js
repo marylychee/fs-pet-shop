@@ -37,7 +37,7 @@ app.get('/pets/:id', function(req, res) {
       return res.sendStatus(404);
     }
 
-    res.set('Content-Type', 'text/plain');
+    res.set('Content-Type', 'application/json');
     res.send(pets[id]);
   })
 })
