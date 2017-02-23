@@ -9,9 +9,11 @@ var app = express();
 var port = process.env.PORT  || 8000;
 
 var morgan = require('morgan');
+var bodyParser = require('body-parser');
 
 app.disable('x-powered-by');
 app.use(morgan('short'));
+app.use(bodyParser.json())
 
 app.get('/pets', function(req, res) {
   fs.readFile(petsPath, 'utf8', function(err, petsJSON) {
@@ -23,6 +25,43 @@ app.get('/pets', function(req, res) {
     var pets = JSON.parse(petsJSON);
 
     res.send(pets);
+  });
+});
+
+app.post('/pets', function(req, res) {
+  fs.readFile(petsPath, 'utf8', function(readErr, petsJSON) {
+    if (readErr) {
+      console.error(readErr.stack);
+      return res.sendStatus(500);
+    }
+
+    var pets = JSON.parse(petsJSON);
+    var petAge = req.body.age;
+    var petKind = req.body.kind;
+    var petName = req.body.name;
+
+    var pet = {};
+    pet.age = petAge;
+    pet.kind = petKind;
+    pet.name = petName;
+
+    if (!pet) {
+      return res.sendStatus(400);
+    }
+
+    pets.push(pet);
+
+    var newPetsJSON = JSON.stringify(pets);
+
+    fs.writeFile(petsPath, newPetsJSON, function(writeFile) {
+      if (writeFile) {
+        console.error(writeErr.stack);
+        return res.sendStatus(500);
+      }
+
+      res.set('Content-Type', 'text/plain');
+      res.send(pet);
+    });
   });
 });
 
